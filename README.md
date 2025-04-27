@@ -25,15 +25,19 @@ This elevator system can be used in different ways.
 
 ##  Settings 
 ```lua
-Config.WaitTime       = 3000                --  This will set the time for the ProgressBar | 1000 = 1 second
-Config.UseLanguage    = "pt"                --  make new languages to your own likng
-Config.KeyBind        = 'F6'                --  Keybind for open menu Admin
-Config.OpenKeybind    = true                --  If you use a Scripts management menu, disable this option.
-Config.UseDatabase    = true                --  Don't touch it if you don't know what you're doing
-Config.UseSoundEffect = true                --  makes a sound when you use elevator Note: still a work in progress
-Config.keycard        = 'security_card_01'  --  Item used to open certain elevators
-Config.position       = 'center-left'       --  oxLib notifications position
-Config.addCard        = 'addcard'           --  Command to add item to inventory
+Config                = {}
+Config.Debug          = false              --  Debug mode | true = enabled | false = disabled
+Config.WaitTime       = 3000               --  This will set the time for the ProgressBar | 1000 = 1 second
+Config.UseLanguage    = "pt"               --  make new languages to your own likng
+Config.KeyBind        = 'F6'               --  Keybind for open menu Admin
+Config.OpenKeybind    = true               --  If you use a Scripts management menu, disable this option.
+Config.UseDatabase    = true               --  Don't touch it if you don't know what you're doing
+Config.UseSoundEffect = true               --  makes a sound when you use elevator Note: still a work in progress
+Config.keycard        = 'security_card_01' --  Item used to open certain elevators
+Config.position       = 'center-left'      --  oxLib notifications position
+Config.addCard        = 'addcard'          --  Command to add item to inventory
+Config.Raycast        = true               --  If you want to use the raycast feature, disable this option.
+Config.RaycastCommand = 'rayo'              --  Keybind to use raycast
 Config.Jobs           = {                   --  Jobs used in your city to avoid conflict with card metadata security_card_01
     'police',
     'sheriff',
@@ -98,7 +102,7 @@ Place your item images in: `ox_inventory/web/images/`
 
 ##  Preview
 
-coming-soon...
+[![PR Elevator System Preview](https://img.youtube.com/vi/r9lqe6dXAK8/0.jpg)](https://youtu.be/r9lqe6dXAK8)
 
 
 

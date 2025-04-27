@@ -4,6 +4,19 @@ lib.addCommand('elevador', {
 }, function(source, args, raw)
     TriggerClientEvent('pr-elevator:client:startLiftCreator', source)
 end)
+lib.addCommand(Config.RaycastCommand, {
+    help = 'Pegar coordenadas por RayCast',
+    restricted = 'group.admin'
+}, function(source)
+    if Config.Raycast then
+        lib.callback.await('pr-elevator:client:raycast', source)
+        TriggerClientEvent('pr-elevator:client:masterNotify', target, "RayCast",
+            Config.Locals[Config.UseLanguage].raycastDesc, 'success')
+    else
+        TriggerClientEvent('pr-elevator:client:masterNotify', target, "RayCast",
+            Config.Locals[Config.UseLanguage].raycastDisabled, 'error')
+    end
+end)
 local Elevators = { Elevator = {} }
 
 --function LoadElevatorsFromDB()
@@ -105,6 +118,7 @@ function loadDb()
     )
     print("^2[PR] ^7Verificação concluida todos os dados foram criado no banco de dados...")
 end
+
 RegisterNetEvent(
     "onResourceStart",
     function(resName)
@@ -153,10 +167,12 @@ lib.addCommand(Config.addCard, {
 
         if success then
             -- Fix: Pass all three parameters to the event
-            TriggerClientEvent('pr-elevator:client:masterNotify', target, Config.Locals[Config.UseLanguage].infoSuccess, Config.Locals[Config.UseLanguage].cardSuccess, 'success')
+            TriggerClientEvent('pr-elevator:client:masterNotify', target, Config.Locals[Config.UseLanguage].infoSuccess,
+                Config.Locals[Config.UseLanguage].cardSuccess, 'success')
         else
             -- Fix: Pass all three parameters to the event
-            TriggerClientEvent('pr-elevator:client:masterNotify', target, Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notAddCard, 'error')
+            TriggerClientEvent('pr-elevator:client:masterNotify', target, Config.Locals[Config.UseLanguage].error,
+                Config.Locals[Config.UseLanguage].notAddCard, 'error')
         end
     end)
 --  edita andar inteiro
@@ -337,7 +353,7 @@ end)
 --  carrega os elevadores
 RegisterNetEvent('pr-elevator:server:getElevatorList', function(forenkey)
     local src =
-    source             -- Jogador que fez a solicitação
+        source -- Jogador que fez a solicitação
 
     local query =
     "SELECT id, floor_number, coords FROM elevator_floors WHERE elevator_id = @elevator_id" -- Buscar elevadores pelo forenkey

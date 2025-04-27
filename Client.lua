@@ -5,6 +5,7 @@ local ox_lib = exports.ox_lib
 local resourceName = GetCurrentResourceName()
 local playerJob = {}
 local playerGang = {}
+local ColorScheme = GlobalState.UIColors
 
 function masterNotify(title, description, type)
     lib.notify({
@@ -15,6 +16,7 @@ function masterNotify(title, description, type)
         position = Config.position
     })
 end
+
 RegisterNetEvent('pr-elevator:client:masterNotify', masterNotify)
 -- opens the ui
 RegisterNetEvent('pr-elevator:showmenu', function(index)
@@ -90,7 +92,8 @@ function AddInteraction(index, coords, keypass, tipo)
                         end
 
                         if not toolItem then
-                            masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notItem, 'error')
+                            masterNotify(Config.Locals[Config.UseLanguage].error,
+                                Config.Locals[Config.UseLanguage].notItem, 'error')
                             return
                         end
 
@@ -98,7 +101,8 @@ function AddInteraction(index, coords, keypass, tipo)
                             TriggerEvent('pr-elevator:showmenu', index)
                             return
                         end
-                        masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notAcess, 'error')
+                        masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notAcess,
+                            'error')
                     else
                         -- Check if keypass is in Config.Jobs
                         local isJob = false
@@ -108,10 +112,11 @@ function AddInteraction(index, coords, keypass, tipo)
                                 break
                             end
                         end
-                        
+
                         if isJob then
                             -- If keypass is a job, show notification that access is denied
-                            masterNotify(Config.Locals[Config.UseLanguage].error,Config.Locals[Config.UseLanguage].notAcess,'error')
+                            masterNotify(Config.Locals[Config.UseLanguage].error,
+                                Config.Locals[Config.UseLanguage].notAcess, 'error')
                         else
                             -- If keypass is not a job, show password input dialog
                             local input = lib.inputDialog(Config.Locals[Config.UseLanguage].passwordElev, {
@@ -124,7 +129,8 @@ function AddInteraction(index, coords, keypass, tipo)
                             })
                             if not input then return end
                             if input[1] ~= keypass then
-                                masterNotify(Config.Locals[Config.UseLanguage].error,Config.Locals[Config.UseLanguage].invalid,'error')
+                                masterNotify(Config.Locals[Config.UseLanguage].error,
+                                    Config.Locals[Config.UseLanguage].invalid, 'error')
                                 return false
                             end
                             TriggerEvent('pr-elevator:showmenu', index)
@@ -136,6 +142,7 @@ function AddInteraction(index, coords, keypass, tipo)
     }
     exports.interact:AddInteraction(interactions[index])
 end
+
 RegisterNetEvent(
     "onResourceStart",
     function(cocoteimoso)
@@ -182,6 +189,7 @@ function NearestElevator()
 
     return nearestElevator, nearestDistance
 end
+
 RegisterNUICallback('selectfloor', function(data, cb)
     local floorNumber = tonumber(data.number)
 
@@ -217,6 +225,107 @@ end)
 
 
 
+--////////////////////////////////////////////////////////////
+--///                       RAYCAST                        ///
+--////////////////////////////////////////////////////////////
+
+local function GetRayCoords(cb)
+    masterNotify(Config.Locals[Config.UseLanguage].selectCoords, '', 'info')
+    
+    local active = true
+    
+    CreateThread(function()
+        while active do
+            Wait(0) -- Yield each frame
+            
+            local hit, entity, coords = lib.raycast.cam(1, 35)
+
+            lib.showTextUI(
+                string.format(
+                Config.Locals[Config.UseLanguage].raycastInfo,
+                    coords.x,
+                    coords.y,
+                    coords.z
+                )
+            )
+            
+            if hit then
+                DrawSphere(coords.x, coords.y, coords.z, 0.2, 255, 0, 0, 0.2)
+                if IsControlJustReleased(1, 38) then -- E
+                    lib.hideTextUI()
+                    active = false
+                    cb(coords) -- Call the callback with coords
+                    return
+                end
+            end
+            
+            if IsControlJustReleased(0, 44) then -- Q
+                lib.hideTextUI()
+                active = false
+                cb(false) -- Call the callback with false
+                return
+            end
+        end
+    end)
+end
+lib.callback.register('pr-elevator:client:raycast', function()
+    local result = nil
+    
+    GetRayCoords(function(coords)
+        if coords then
+            local heading = GetEntityHeading(PlayerPedId())
+            lib.setClipboard(string.format("%.2f, %.2f, %.2f, %.2f", coords.x, coords.y, coords.z, heading))
+            result = true
+        else
+            result = false
+        end
+    end)
+    
+    -- Wait for the result
+    while result == nil do
+        Wait(100)
+    end
+    
+    return result
+end)
+exports('GetRayCoords', GetRayCoords)
+local function Request(title, text, position)
+    while lib.getOpenMenu() do
+        Wait(100)
+    end
+    if not position then
+        position = 'top-right'
+    end
+    local ctx = {
+        id = 'mriRequest',
+        title = title,
+        position = position,
+        canClose = false,
+        options = { {
+            label = Config.Locals[Config.UseLanguage].yes,
+            icon = 'fa-regular fa-circle-check',
+            description = text
+        }, {
+            label = Config.Locals[Config.UseLanguage].no,
+            icon = 'fa-regular fa-circle-xmark',
+            iconColor = ColorScheme.danger,
+            description = text
+        } }
+    }
+    local result = false
+    lib.registerMenu(ctx, function(selected, scrollIndex, args)
+        result = selected == 1
+    end)
+    lib.showMenu(ctx.id)
+    while lib.getOpenMenu() == ctx.id do
+        Wait(100)
+    end
+    return result
+end
+lib.callback.register('pr-elevator:client:request', function(title, text, position)
+    return Request(title, text, position)
+end)
+exports('Request', Request)
 
 --////////////////////////////////////////////////////////////
 --///                      MENU OXLIB                      ///
@@ -308,16 +417,19 @@ local function editaElevadorMaster(elevadorId)
         if input[4] then
             local resultado2 = lib.callback.await('pr-elevator:server:deleteAndar', false, elevator.id)
             if resultado2 then
-                masterNotify(Config.Locals[Config.UseLanguage].info, Config.Locals[Config.UseLanguage].delFloorSuccess, 'info')
+                masterNotify(Config.Locals[Config.UseLanguage].info, Config.Locals[Config.UseLanguage].delFloorSuccess,
+                    'info')
             else
-                masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notPossible, 'error')
+                masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notPossible,
+                    'error')
             end
         else
             local resultado = lib.callback.await('pr-elevator:server:editarandar', false, andarData)
             if resultado then
                 masterNotify(Config.Locals[Config.UseLanguage].info, Config.Locals[Config.UseLanguage].editFloor, 'info')
             else
-                masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notEditFloor, 'error')
+                masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notEditFloor,
+                    'error')
             end
         end
         -- Retornar para o menu "infoserver_menu"
@@ -371,7 +483,8 @@ local function gerenciarAndarSelect(elevadorId)
                             SetEntityHeading(PlayerPedId(), tonumber(heading))
                         end
                     else
-                        masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].cdsInvalid, 'error')
+                        masterNotify(Config.Locals[Config.UseLanguage].error,
+                            Config.Locals[Config.UseLanguage].cdsInvalid, 'error')
                     end
                 end
             },
@@ -395,12 +508,15 @@ local function gerenciarAndarSelect(elevadorId)
                     if inputo[1] == Config.Locals[Config.UseLanguage].delet then
                         local resultado2 = lib.callback.await('pr-elevator:server:deleteAndar', false, elevator.id)
                         if resultado2 then
-                            masterNotify(Config.Locals[Config.UseLanguage].info, Config.Locals[Config.UseLanguage].delFloorSuccess, 'info')
+                            masterNotify(Config.Locals[Config.UseLanguage].info,
+                                Config.Locals[Config.UseLanguage].delFloorSuccess, 'info')
                         else
-                            masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notPossible, 'error')
+                            masterNotify(Config.Locals[Config.UseLanguage].error,
+                                Config.Locals[Config.UseLanguage].notPossible, 'error')
                         end
                     else
-                        masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].infoDelet, 'error')
+                        masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage]
+                        .infoDelet, 'error')
                     end
                 end
             },
@@ -538,7 +654,8 @@ local function editaPredioMaster(elevadorId)
             end
         end
         if input[2] ~= '' and input[3] ~= '' then
-            masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].keyCardPassword,'error')
+            masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].keyCardPassword,
+                'error')
             return
         end
         if input[3] ~= '' then
@@ -562,9 +679,11 @@ local function editaPredioMaster(elevadorId)
         if input[4] then -- O checkbox será o terceiro elemento
             local resultado2 = lib.callback.await('pr-elevator:server:deletePredio', false, predio.id)
             if resultado2 then
-                masterNotify(Config.Locals[Config.UseLanguage].info, Config.Locals[Config.UseLanguage].elevatorDel,'info')
+                masterNotify(Config.Locals[Config.UseLanguage].info, Config.Locals[Config.UseLanguage].elevatorDel,
+                    'info')
             else
-                masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notDelElevator, 'error')
+                masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notDelElevator,
+                    'error')
             end
         else
             -- Atualizar os dados do Elevador (caso não seja para excluir)
@@ -579,9 +698,11 @@ local function editaPredioMaster(elevadorId)
             local resultado = lib.callback.await('pr-elevator:server:editarPredio', false, predioData)
 
             if resultado then
-                masterNotify(Config.Locals[Config.UseLanguage].infoSuccess, Config.Locals[Config.UseLanguage].refreshElevator, 'success')
+                masterNotify(Config.Locals[Config.UseLanguage].infoSuccess,
+                    Config.Locals[Config.UseLanguage].refreshElevator, 'success')
             else
-                masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notRefreshElev, 'error')
+                masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notRefreshElev,
+                    'error')
             end
         end
         -- Retornar para o menu "infoserver_menu"
@@ -627,9 +748,11 @@ local function PreGerenciarPredios(torreId, nome)
                 if inputo[1] == Config.Locals[Config.UseLanguage].delet then
                     local resultado2 = lib.callback.await('pr-elevator:server:deletePredio', false, torreId)
                     if resultado2 then
-                        masterNotify(Config.Locals[Config.UseLanguage].info, Config.Locals[Config.UseLanguage].elevatorDel, 'info')
+                        masterNotify(Config.Locals[Config.UseLanguage].info,
+                            Config.Locals[Config.UseLanguage].elevatorDel, 'info')
                     else
-                        masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notDelElevator, 'error')
+                        masterNotify(Config.Locals[Config.UseLanguage].error,
+                            Config.Locals[Config.UseLanguage].notDelElevator, 'error')
                     end
                 end
             end
@@ -659,7 +782,8 @@ local function GerenciarPredios()
     TriggerServerEvent('pr-elevator:server:getTowerList')
     RegisterNetEvent('pr-elevator:client:receiveTowerList', function(towerList)
         if not towerList or #towerList == 0 then
-            masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notElevatorDb, 'error')
+            masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notElevatorDb,
+                'error')
             return
         end
 
@@ -776,7 +900,8 @@ local function createElevador()
 
         if resultado then
             -- Exibir notificação de sucesso
-            masterNotify(Config.Locals[Config.UseLanguage].infoSuccess, Config.Locals[Config.UseLanguage].addSuccessFloor, 'success')
+            masterNotify(Config.Locals[Config.UseLanguage].infoSuccess, Config.Locals[Config.UseLanguage]
+            .addSuccessFloor, 'success')
         else
             -- Exibir notificação de erro
             masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notAddFloor, 'error')
@@ -821,7 +946,7 @@ local function createPredio()
         return
     end
     for k, v in pairs(Config.Jobs) do -- Added 'in' keyword here
-        if v == input[2] then
+    if v == input[2] then
             masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].jobCard, 'error')
             return
         end
@@ -843,7 +968,8 @@ local function createPredio()
 
     if resultado then
         -- Exibe aviso de sucesso
-        masterNotify(Config.Locals[Config.UseLanguage].infoSuccess, Config.Locals[Config.UseLanguage].infoSuccessInfo, 'success')
+        masterNotify(Config.Locals[Config.UseLanguage].infoSuccess, Config.Locals[Config.UseLanguage].infoSuccessInfo,
+            'success')
     else
         -- Exibe aviso de erro
         masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].errorInfo, 'error')
@@ -977,7 +1103,6 @@ if Config.OpenKeybind then
         lib.showContext('infoserver_menu')
     end)
 end
-
 RegisterNetEvent('pr-elevator:client:startLiftCreator', function()
     lib.showContext('infoserver_menu')
 end)

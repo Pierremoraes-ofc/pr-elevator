@@ -1,26 +1,35 @@
 Config                = {}
-Config.Debug          = false
-Config.WaitTime       = 3000                    --  This will set the time for the ProgressBar | 1000 = 1 second
-Config.UseLanguage    = "pt"                    --  make new languages to your own likng
-Config.KeyBind        = 'F6'                    --  Keybind for open menu Admin
-Config.OpenKeybind    = true                    --  If you use a Scripts management menu, disable this option.
-Config.UseDatabase    = true                    --  Don't touch it if you don't know what you're doing
-Config.UseSoundEffect = true                    --  makes a sound when you use elevator Note: still a work in progress
-Config.keycard        = 'security_card_01'      --  Item used to open certain elevators
-Config.position       = 'center-left'           --  oxLib notifications position
-Config.addCard        = 'addcard'               --  Command to add item to inventory
-Config.Jobs           = {                       --  Jobs used in your city to avoid conflict with card metadata 
+Config.Debug          = false              --  Debug mode | true = enabled | false = disabled
+Config.WaitTime       = 3000               --  This will set the time for the ProgressBar | 1000 = 1 second
+Config.UseLanguage    = "pt"               --  make new languages to your own likng
+Config.KeyBind        = 'F6'               --  Keybind for open menu Admin
+Config.OpenKeybind    = true               --  If you use a Scripts management menu, disable this option.
+Config.UseDatabase    = true               --  Don't touch it if you don't know what you're doing
+Config.UseSoundEffect = true               --  makes a sound when you use elevator Note: still a work in progress
+Config.keycard        = 'security_card_01' --  Item used to open certain elevators
+Config.position       = 'center-left'      --  oxLib notifications position
+Config.addCard        = 'addcard'          --  Command to add item to inventory
+Config.Raycast        = true               --  If you want to use the raycast feature, disable this option.
+Config.RaycastCommand = 'rayo'              --  Keybind to use raycast
+Config.Jobs           = {                  --  Jobs used in your city to avoid conflict with card metadata
     'police',
     'sheriff',
     'ambulance',
     'mechanic',
 }
-Config.Locals         = {                       --  Field used to place all the translation for your language
+Config.Locals         = { --  Field used to place all the translation for your language
     ["en"] = {
-        
+
     },
     ["pt"] = {
-        helpcomm='Criar elevadores (somente Admin)',
+        raycastDisabled = 'Raycast desabilitado.',
+        raycastDesc = 'Coordendas copiadas para a Clipboard (Área de Transferência).',
+        raycastInfo = '[E] Confirmar  \n [Q] Cancelar  \n  \nX: %.2f  \nY: %.2f  \nZ: %.2f',
+        selectCoords = 'Marque as coordenadas',
+        yes = 'Sim',
+        no = 'Não',
+        cancel = 'Cancelar',
+        helpcomm = 'Criar elevadores (somente Admin)',
         Waiting = 'Esperando pelo elevador...',
         Restricted = 'Acesso restrito!',
         CurrentFloor = 'Piso atual:',
@@ -111,6 +120,6 @@ Config.Locals         = {                       --  Field used to place all the 
         clickManageElevator = 'Clique para gerenciar este Elevador',
         notAddFloor = 'Não foi possível adicionar o andar!',
         addSuccessFloor = 'Seu andar foi adicionado com sucesso!',
-        notAddCard='Não foi possível adicionar o cartão!',
+        notAddCard = 'Não foi possível adicionar o cartão!',
     },
 }
