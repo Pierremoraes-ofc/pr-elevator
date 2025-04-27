@@ -17,6 +17,7 @@ This elevator system can be used in different ways.
 3. Password elevator
 4. Public elevators
 5. Card access elevator (using metadata)
+6. Teleport system allows lift for vehicles.
 
 ##  Settings 
 ```lua
@@ -98,8 +99,10 @@ coming-soon...
 
 
 # Depedency
-1. [Qbox](https://qbox-project.github.io/)
-1. [qb-core](https://github.com/qbcore-framework/qb-core)
-2. [interact](https://github.com/darktrovx/interact)
-3. [oxlib](https://overextended.dev/ox_lib)
+1. [Qbox](https://qbox-project.github.io/) or [qb-core](https://github.com/qbcore-framework/qb-core)
+2. [oxlib](https://overextended.dev/ox_lib)
 3. [ox_inventory](https://overextended.dev/ox_inventory)
+I modified this interact so that obstacles such as vehicles, pedestrians, players when in front of the interact disappear but the elevator stops working with vehicles.
+4. [interact](https://github.com/Pierremoraes-ofc/interact) 
+Original interact, this one works with vehicles or the elevator
+[interact](https://github.com/darktrovx/interact)
