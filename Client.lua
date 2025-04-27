@@ -15,21 +15,21 @@ function masterNotify(title, description, type)
         position = Config.position
     })
 end
-RegisterNetEvent('nyx-elevator:client:masterNotify', masterNotify)
+RegisterNetEvent('pr-elevator:client:masterNotify', masterNotify)
 -- opens the ui
-RegisterNetEvent('nyx-elevator:showmenu', function(index)
+RegisterNetEvent('pr-elevator:showmenu', function(index)
     SendNUIMessage({ action = 'showlift', data = Elevators.Elevator[index] })
     SetNuiFocus(true, true)
 end)
 -- hides the ui
-RegisterNetEvent('nyx-elevator:hidemenu', function(playerId)
+RegisterNetEvent('pr-elevator:hidemenu', function(playerId)
     SendNUIMessage({ action = 'hidelift' })
     SetNuiFocus(false, false)
 end)
 -- handles changing floors
 local function UseElevator(data)
     local ped = PlayerPedId()
-    TriggerEvent("nyx-elevator:hidemenu")
+    TriggerEvent("pr-elevator:hidemenu")
     if Config.Debug then
         print('UseElevator: ')
         print(json.encode(data))
@@ -79,9 +79,9 @@ function AddInteraction(index, coords, keypass, tipo)
                 label = index,
                 action = function(entity, coords, args)
                     if keypass == '' then
-                        TriggerEvent('nyx-elevator:showmenu', index)
+                        TriggerEvent('pr-elevator:showmenu', index)
                     elseif keypass == playerJob.name or keypass == playerGang.name then
-                        TriggerEvent('nyx-elevator:showmenu', index)
+                        TriggerEvent('pr-elevator:showmenu', index)
                     elseif keypass == Config.keycard then
                         local toolItem = exports.ox_inventory:Search("slots", keypass)
 
@@ -95,7 +95,7 @@ function AddInteraction(index, coords, keypass, tipo)
                         end
 
                         if toolItem.metadata['acesso'] == tipo then
-                            TriggerEvent('nyx-elevator:showmenu', index)
+                            TriggerEvent('pr-elevator:showmenu', index)
                             return
                         end
                         masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notAcess, 'error')
@@ -127,7 +127,7 @@ function AddInteraction(index, coords, keypass, tipo)
                                 masterNotify(Config.Locals[Config.UseLanguage].error,Config.Locals[Config.UseLanguage].invalid,'error')
                                 return false
                             end
-                            TriggerEvent('nyx-elevator:showmenu', index)
+                            TriggerEvent('pr-elevator:showmenu', index)
                         end
                     end
                 end,
@@ -143,7 +143,7 @@ RegisterNetEvent(
             local playerData = QBCore.Functions.GetPlayerData()
             playerJob = playerData.job
             playerGang = playerData.gang
-            Elevators = lib.callback.await("nyx-elevator:server:loadElevator", false)
+            Elevators = lib.callback.await("pr-elevator:server:loadElevator", false)
             if Config.Debug then
                 print(json.encode(Elevators))
             end
@@ -201,17 +201,17 @@ RegisterNUICallback('selectfloor', function(data, cb)
             -- Call the UseElevator function with the elevator and floor data
             UseElevator({ lift = nearestElevator, floor = selectedFloor })
             cb({ success = true, message = "Floor selected successfully" })
-            TriggerEvent("nyx-elevator:hidemenu")
+            TriggerEvent("pr-elevator:hidemenu")
         else
             cb({ success = false, message = "Invalid floor selection" })
-            TriggerEvent("nyx-elevator:hidemenu")
+            TriggerEvent("pr-elevator:hidemenu")
         end
     else
         cb({ success = false, message = "No elevator found" })
     end
 end)
 RegisterNUICallback('escape', function(_, cb)
-    TriggerEvent("nyx-elevator:hidemenu")
+    TriggerEvent("pr-elevator:hidemenu")
     cb("ok")
 end)
 
@@ -225,10 +225,10 @@ end)
 -- EDITAR ELEVADOR
 local function editaElevadorMaster(elevadorId)
     -- Solicitar a lista de elevadores do servidor
-    TriggerServerEvent('nyx-elevator:server:getElevatorSelect', elevadorId)
+    TriggerServerEvent('pr-elevator:server:getElevatorSelect', elevadorId)
 
     -- Escutar o evento que recebe os dados do elevador selecionado
-    RegisterNetEvent('nyx-elevator:client:receiveElevatorSelect', function(elevator)
+    RegisterNetEvent('pr-elevator:client:receiveElevatorSelect', function(elevator)
         -- Check if elevator is an array and extract the first element if it is
         if type(elevator) == 'table' and elevator[1] then
             elevator = elevator[1]
@@ -306,14 +306,14 @@ local function editaElevadorMaster(elevadorId)
             print(json.encode(andarData))
         end
         if input[4] then
-            local resultado2 = lib.callback.await('nyx-elevator:server:deleteAndar', false, elevator.id)
+            local resultado2 = lib.callback.await('pr-elevator:server:deleteAndar', false, elevator.id)
             if resultado2 then
                 masterNotify(Config.Locals[Config.UseLanguage].info, Config.Locals[Config.UseLanguage].delFloorSuccess, 'info')
             else
                 masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notPossible, 'error')
             end
         else
-            local resultado = lib.callback.await('nyx-elevator:server:editarandar', false, andarData)
+            local resultado = lib.callback.await('pr-elevator:server:editarandar', false, andarData)
             if resultado then
                 masterNotify(Config.Locals[Config.UseLanguage].info, Config.Locals[Config.UseLanguage].editFloor, 'info')
             else
@@ -327,10 +327,10 @@ end
 --  GERENCIAR O ANDAR
 local function gerenciarAndarSelect(elevadorId)
     -- Solicitar a lista de elevadores do servidor
-    TriggerServerEvent('nyx-elevator:server:getElevatorSelect', elevadorId)
+    TriggerServerEvent('pr-elevator:server:getElevatorSelect', elevadorId)
 
     -- Escutar o evento que recebe os dados do elevador selecionado
-    RegisterNetEvent('nyx-elevator:client:receiveElevatorSelect', function(elevator)
+    RegisterNetEvent('pr-elevator:client:receiveElevatorSelect', function(elevator)
         if Config.Debug then
             print(json.encode(elevator), 'Sei lá!!')
         end
@@ -393,7 +393,7 @@ local function gerenciarAndarSelect(elevadorId)
                     end
                     -- Fix: inputo is an array, so we need to check inputo[1]
                     if inputo[1] == Config.Locals[Config.UseLanguage].delet then
-                        local resultado2 = lib.callback.await('nyx-elevator:server:deleteAndar', false, elevator.id)
+                        local resultado2 = lib.callback.await('pr-elevator:server:deleteAndar', false, elevator.id)
                         if resultado2 then
                             masterNotify(Config.Locals[Config.UseLanguage].info, Config.Locals[Config.UseLanguage].delFloorSuccess, 'info')
                         else
@@ -428,10 +428,10 @@ end
 -- GERENCIAR ELEVADOR
 local function gerenciarMeusElevador(predioId, predioNome)
     -- Solicitar lista de elevadores do servidor
-    TriggerServerEvent('nyx-elevator:server:getElevatorList', predioId)
+    TriggerServerEvent('pr-elevator:server:getElevatorList', predioId)
 
     -- Escutar evento para receber a lista de elevadores
-    RegisterNetEvent('nyx-elevator:client:receiveElevatorList', function(elevatorList)
+    RegisterNetEvent('pr-elevator:client:receiveElevatorList', function(elevatorList)
         if not elevatorList or #elevatorList == 0 then
             Notify(locale(msg), 'warning')
             masterNotify(Config.Locals[Config.UseLanguage].info, Config.Locals[Config.UseLanguage].notEncounter, 'info')
@@ -477,10 +477,10 @@ end
 -- EDITAR ELEVADOR
 local function editaPredioMaster(elevadorId)
     -- Solicitar a lista de elevadores do servidor
-    TriggerServerEvent('nyx-elevator:server:getPredioSelect', elevadorId)
+    TriggerServerEvent('pr-elevator:server:getPredioSelect', elevadorId)
 
     -- Escutar o evento que recebe os dados do elevador selecionado
-    RegisterNetEvent('nyx-elevator:client:receivePredioSelect', function(predio)
+    RegisterNetEvent('pr-elevator:client:receivePredioSelect', function(predio)
         -- Check if elevator is an array and extract the first element if it is
         if type(predio) == 'table' and predio[1] then
             predio = predio[1]
@@ -560,7 +560,7 @@ local function editaPredioMaster(elevadorId)
 
         -- Se o checkbox excluir elevador estiver marcado, trata a exclusão
         if input[4] then -- O checkbox será o terceiro elemento
-            local resultado2 = lib.callback.await('nyx-elevator:server:deletePredio', false, predio.id)
+            local resultado2 = lib.callback.await('pr-elevator:server:deletePredio', false, predio.id)
             if resultado2 then
                 masterNotify(Config.Locals[Config.UseLanguage].info, Config.Locals[Config.UseLanguage].elevatorDel,'info')
             else
@@ -576,7 +576,7 @@ local function editaPredioMaster(elevadorId)
             }
 
             -- Usar lib.callback para editar o Elevador
-            local resultado = lib.callback.await('nyx-elevator:server:editarPredio', false, predioData)
+            local resultado = lib.callback.await('pr-elevator:server:editarPredio', false, predioData)
 
             if resultado then
                 masterNotify(Config.Locals[Config.UseLanguage].infoSuccess, Config.Locals[Config.UseLanguage].refreshElevator, 'success')
@@ -625,7 +625,7 @@ local function PreGerenciarPredios(torreId, nome)
                     return
                 end
                 if inputo[1] == Config.Locals[Config.UseLanguage].delet then
-                    local resultado2 = lib.callback.await('nyx-elevator:server:deletePredio', false, torreId)
+                    local resultado2 = lib.callback.await('pr-elevator:server:deletePredio', false, torreId)
                     if resultado2 then
                         masterNotify(Config.Locals[Config.UseLanguage].info, Config.Locals[Config.UseLanguage].elevatorDel, 'info')
                     else
@@ -656,8 +656,8 @@ end
 -- Escutar o evento que recebe a lista de Elevador
 local function GerenciarPredios()
     -- Solicitar a lista de Elevador do servidor
-    TriggerServerEvent('nyx-elevator:server:getTowerList')
-    RegisterNetEvent('nyx-elevator:client:receiveTowerList', function(towerList)
+    TriggerServerEvent('pr-elevator:server:getTowerList')
+    RegisterNetEvent('pr-elevator:client:receiveTowerList', function(towerList)
         if not towerList or #towerList == 0 then
             masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notElevatorDb, 'error')
             return
@@ -702,10 +702,10 @@ end
 -- CRIAR ELEVADORES
 local function createElevador()
     -- Solicitar a lista de Elevadors do servidor
-    TriggerServerEvent('nyx-elevator:server:getTowerList')
+    TriggerServerEvent('pr-elevator:server:getTowerList')
 
     -- Escutar o evento que recebe a lista de Elevadors
-    RegisterNetEvent('nyx-elevator:client:receiveTowerList', function(towerList)
+    RegisterNetEvent('pr-elevator:client:receiveTowerList', function(towerList)
         if not towerList or #towerList == 0 then
             masterNotify(Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notElevatorDb, 'info')
             return
@@ -772,7 +772,7 @@ local function createElevador()
         }
 
         -- Chamar o callback para salvar no banco de dados
-        local resultado = lib.callback.await('nyx-elevator:server:salvarAndar', false, andarData)
+        local resultado = lib.callback.await('pr-elevator:server:salvarAndar', false, andarData)
 
         if resultado then
             -- Exibir notificação de sucesso
@@ -839,7 +839,7 @@ local function createPredio()
     }
 
     -- Chama o callback para salvar no banco de dados
-    local resultado = lib.callback.await('nyx-elevator:server:salvarElevador', false, elevadorData)
+    local resultado = lib.callback.await('pr-elevator:server:salvarElevador', false, elevadorData)
 
     if resultado then
         -- Exibe aviso de sucesso
@@ -978,6 +978,6 @@ if Config.OpenKeybind then
     end)
 end
 
-RegisterNetEvent('nyx-elevator:client:startLiftCreator', function()
+RegisterNetEvent('pr-elevator:client:startLiftCreator', function()
     lib.showContext('infoserver_menu')
 end)

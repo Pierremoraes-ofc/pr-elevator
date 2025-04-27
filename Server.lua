@@ -2,12 +2,12 @@ lib.addCommand('elevador', {
     help = Config.Locals[Config.UseLanguage].helpcomm,
     restricted = 'group.admin'
 }, function(source, args, raw)
-    TriggerClientEvent('nyx-elevator:client:startLiftCreator', source)
+    TriggerClientEvent('pr-elevator:client:startLiftCreator', source)
 end)
 local Elevators = { Elevator = {} }
 
 --function LoadElevatorsFromDB()
-lib.callback.register('nyx-elevator:server:loadElevator', function(source)
+lib.callback.register('pr-elevator:server:loadElevator', function(source)
     if not Config.UseDatabase then return end
 
     -- Example using MySQL-async library (common in FiveM)
@@ -153,14 +153,14 @@ lib.addCommand(Config.addCard, {
 
         if success then
             -- Fix: Pass all three parameters to the event
-            TriggerClientEvent('nyx-elevator:client:masterNotify', target, Config.Locals[Config.UseLanguage].infoSuccess, Config.Locals[Config.UseLanguage].cardSuccess, 'success')
+            TriggerClientEvent('pr-elevator:client:masterNotify', target, Config.Locals[Config.UseLanguage].infoSuccess, Config.Locals[Config.UseLanguage].cardSuccess, 'success')
         else
             -- Fix: Pass all three parameters to the event
-            TriggerClientEvent('nyx-elevator:client:masterNotify', target, Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notAddCard, 'error')
+            TriggerClientEvent('pr-elevator:client:masterNotify', target, Config.Locals[Config.UseLanguage].error, Config.Locals[Config.UseLanguage].notAddCard, 'error')
         end
     end)
 --  edita andar inteiro
-lib.callback.register('nyx-elevator:server:editarandar', function(source, andarData)
+lib.callback.register('pr-elevator:server:editarandar', function(source, andarData)
     local src = source
     if Config.Debug then
         print(json.encode(andarData))
@@ -182,14 +182,14 @@ lib.callback.register('nyx-elevator:server:editarandar', function(source, andarD
         --LoadElevatorsFromDB()
 
         -- Notificar todos os clientes para atualizar seus dados
-        --TriggerClientEvent('nyx-elevator:client:atualizarElevadores', -1)
+        --TriggerClientEvent('pr-elevator:client:atualizarElevadores', -1)
         return true
     else
         return false
     end
 end)
 --  deleta andar inteiro
-lib.callback.register('nyx-elevator:server:deleteAndar', function(source, predioId)
+lib.callback.register('pr-elevator:server:deleteAndar', function(source, predioId)
     if Config.Debug then
         print(predioId, 'ID do elevador')
     end
@@ -203,14 +203,14 @@ lib.callback.register('nyx-elevator:server:deleteAndar', function(source, predio
         -- Recarregar os dados dos elevadores após a exclusão
         --LoadElevatorsFromDB()
         -- Notificar todos os clientes para atualizar seus dados
-        --TriggerClientEvent('nyx-elevator:client:atualizarElevadores', -1)
+        --TriggerClientEvent('pr-elevator:client:atualizarElevadores', -1)
         return true
     else
         return false
     end
 end)
 --  apaga elevador e seus andares
-lib.callback.register('nyx-elevator:server:deletePredio', function(source, predioId)
+lib.callback.register('pr-elevator:server:deletePredio', function(source, predioId)
     -- Primeiro, excluir os andares associados ao prédio
     local queryFloors = "DELETE FROM elevator_floors WHERE elevator_id = ?"
     local paramsFloors = { predioId }
@@ -227,14 +227,14 @@ lib.callback.register('nyx-elevator:server:deletePredio', function(source, predi
         -- Recarregar os dados dos elevadores após a exclusão
         --LoadElevatorsFromDB()
         -- Notificar todos os clientes para atualizar seus dados
-        --TriggerClientEvent('nyx-elevator:client:atualizarElevadores', -1)
+        --TriggerClientEvent('pr-elevator:client:atualizarElevadores', -1)
         return true
     else
         return false
     end
 end)
 -- Callback para editar dados do prédio
-lib.callback.register('nyx-elevator:server:editarPredio', function(source, predioData)
+lib.callback.register('pr-elevator:server:editarPredio', function(source, predioData)
     local src = source
 
     -- Verificar se os dados necessários estão presentes
@@ -257,14 +257,14 @@ lib.callback.register('nyx-elevator:server:editarPredio', function(source, predi
         -- Recarregar os dados dos elevadores
         --LoadElevatorsFromDB()
         -- Notificar todos os clientes para atualizar seus dados
-        --TriggerClientEvent('nyx-elevator:client:atualizarElevadores', -1)
+        --TriggerClientEvent('pr-elevator:client:atualizarElevadores', -1)
         return true
     else
         return false
     end
 end)
 -- Callback para salvar andares do elevador
-lib.callback.register('nyx-elevator:server:salvarAndar', function(source, andarData)
+lib.callback.register('pr-elevator:server:salvarAndar', function(source, andarData)
     local src = source
 
     -- Verificar se os dados necessários estão presentes
@@ -282,14 +282,14 @@ lib.callback.register('nyx-elevator:server:salvarAndar', function(source, andarD
     if success then
         --LoadElevatorsFromDB()
         -- Notificar todos os clientes para atualizar seus dados
-        --TriggerClientEvent('nyx-elevator:client:atualizarElevadores', -1)
+        --TriggerClientEvent('pr-elevator:client:atualizarElevadores', -1)
         return true
     else
         return false
     end
 end)
 -- Adicione este callback no seu arquivo Server.lua
-lib.callback.register('nyx-elevator:server:salvarElevador', function(source, elevadorData)
+lib.callback.register('pr-elevator:server:salvarElevador', function(source, elevadorData)
     local src = source
     local params = {}
     -- Verifica se os dados necessários estão presentes
@@ -311,14 +311,14 @@ lib.callback.register('nyx-elevator:server:salvarElevador', function(source, ele
     if success then
         -- Atualiza os dados em cache se necessário
         -- Notifica todos os clientes para atualizar seus dados
-        --TriggerClientEvent('nyx-elevator:client:atualizarElevadores', -1)
+        --TriggerClientEvent('pr-elevator:client:atualizarElevadores', -1)
         return true
     else
         return false
     end
 end)
 --  carrega dados do andar especificado
-RegisterNetEvent('nyx-elevator:server:getElevatorSelect', function(id)
+RegisterNetEvent('pr-elevator:server:getElevatorSelect', function(id)
     local src = source                                                  -- Jogador que fez a solicitação
     local query =
     "SELECT id, floor_number, coords FROM elevator_floors WHERE id = ?" -- Corrigido para selecionar todos os campos necessários
@@ -329,13 +329,13 @@ RegisterNetEvent('nyx-elevator:server:getElevatorSelect', function(id)
     -- Verifica se encontrou algum resultado
     if result and #result > 0 then
         -- Enviar a lista de dados do elevador para o cliente
-        TriggerClientEvent('nyx-elevator:client:receiveElevatorSelect', src, result)
+        TriggerClientEvent('pr-elevator:client:receiveElevatorSelect', src, result)
     else
-        TriggerClientEvent('nyx-elevator:client:notify', src, 'Elevador não encontrado.')
+        TriggerClientEvent('pr-elevator:client:notify', src, 'Elevador não encontrado.')
     end
 end)
 --  carrega os elevadores
-RegisterNetEvent('nyx-elevator:server:getElevatorList', function(forenkey)
+RegisterNetEvent('pr-elevator:server:getElevatorList', function(forenkey)
     local src =
     source             -- Jogador que fez a solicitação
 
@@ -347,25 +347,25 @@ RegisterNetEvent('nyx-elevator:server:getElevatorList', function(forenkey)
 
     if result and #result > 0 then
         -- Enviar a lista de dados do elevador para o cliente
-        TriggerClientEvent('nyx-elevator:client:receiveElevatorList', src, result)
+        TriggerClientEvent('pr-elevator:client:receiveElevatorList', src, result)
     else
-        TriggerClientEvent('nyx-elevator:client:notify', src, 'Elevador não encontrado.')
+        TriggerClientEvent('pr-elevator:client:notify', src, 'Elevador não encontrado.')
     end
 end)
 --  Carrega os Elevadores no menu de criaçao
-RegisterNetEvent('nyx-elevator:server:getTowerList', function()
+RegisterNetEvent('pr-elevator:server:getTowerList', function()
     local src = source                                                   -- Jogador que fez a solicitação
     local result = MySQL.query.await("SELECT id, name FROM `elevators`") -- Buscar apenas `id` e `name`
 
     if result and #result > 0 then
         -- Enviar a lista de dados do elevador para o cliente
-        TriggerClientEvent('nyx-elevator:client:receiveTowerList', src, result)
+        TriggerClientEvent('pr-elevator:client:receiveTowerList', src, result)
     else
-        TriggerClientEvent('nyx-elevator:client:notify', src, 'Elevador não encontrado.')
+        TriggerClientEvent('pr-elevator:client:notify', src, 'Elevador não encontrado.')
     end
 end)
 --  mostrar elevador selecionado
-RegisterNetEvent('nyx-elevator:server:getPredioSelect', function(id)
+RegisterNetEvent('pr-elevator:server:getPredioSelect', function(id)
     local src = source                                                         -- Jogador que fez a solicitação
     local query = "SELECT id, name, keypass, tipo FROM elevators WHERE id = ?" -- Corrigido para usar as colunas corretas
     local params = { id }
@@ -374,8 +374,8 @@ RegisterNetEvent('nyx-elevator:server:getPredioSelect', function(id)
 
     if result and #result > 0 then
         -- Enviar a lista de dados do elevador para o cliente
-        TriggerClientEvent('nyx-elevator:client:receivePredioSelect', src, result)
+        TriggerClientEvent('pr-elevator:client:receivePredioSelect', src, result)
     else
-        TriggerClientEvent('nyx-elevator:client:notify', src, 'Elevador não encontrado.')
+        TriggerClientEvent('pr-elevator:client:notify', src, 'Elevador não encontrado.')
     end
 end)

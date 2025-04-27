@@ -1,8 +1,8 @@
 fx_version "cerulean"
 game { "gta5" }
 
-author 'nyx-development'
-description 'elevator script.'
+author 'pr-elevator'
+description 'Desenvolvido por PierreMoraes, original base nyx-elevator'
 version '1.0.0'
 lua54 "yes"
 use_experimental_fxv2_oal "yes"

@@ -6,6 +6,18 @@ Discord: pierre4235
 
 [SubZero](https://github.com/SubZer0GLX)
 
+
+Original script
+[NYXdevelopments](https://github.com/NYXdevelopments/nyx-elevator/)
+
+##  System info
+This elevator system can be used in different ways.
+1. Gang elevator
+2. Work elevator
+3. Password elevator
+4. Public elevators
+5. Card access elevator (using metadata)
+
 ##  Settings 
 ```lua
 Config.WaitTime       = 3000                --  This will set the time for the ProgressBar | 1000 = 1 second
