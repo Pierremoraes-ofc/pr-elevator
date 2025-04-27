@@ -6,6 +6,10 @@ Discord: pierre4235
 
 [SubZero](https://github.com/SubZer0GLX)
 
+[MRI-Team](https://docs.mriqbox.com.br/)
+
+[J.J.](https://github.com/JJ4hts)
+
 
 Original script
 [NYXdevelopments](https://github.com/NYXdevelopments/nyx-elevator/)
