@@ -3,6 +3,7 @@ Discord: pierre4235
 
 ##  Thanks to those who helped me
 [G5](https://github.com/ggfto)
+
 [SubZero](https://github.com/SubZer0GLX)
 
 ##  Settings 
