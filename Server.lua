@@ -77,6 +77,7 @@ lib.callback.register('nyx-elevator:server:loadElevator', function(source)
     return Elevators
 end)
 function loadDb()
+    print("^2[PR] ^7Verificando a existencia da tabela elevators no banco de dados...")
     exports.oxmysql:execute(
         [[
             CREATE TABLE IF NOT EXISTS `elevators` (
@@ -86,7 +87,11 @@ function loadDb()
             `tipo` varchar(155) NOT NULL,
             PRIMARY KEY (`id`)
             );
-
+        ]]
+    )
+    print("^2[PR] ^7Verificando a existencia da tabela elevator_floors no banco de dados...")
+    exports.oxmysql:execute(
+        [[
             CREATE TABLE IF NOT EXISTS `elevator_floors` (
             `id` int(11) NOT NULL AUTO_INCREMENT,
             `elevator_id` int(11) NOT NULL,
@@ -98,12 +103,13 @@ function loadDb()
             );
         ]]
     )
+    print("^2[PR] ^7Verificação concluida todos os dados foram criado no banco de dados...")
 end
 RegisterNetEvent(
     "onResourceStart",
     function(resName)
         if resName == GetCurrentResourceName() then
-            --loadDb()
+            loadDb()
         end
     end
 )
